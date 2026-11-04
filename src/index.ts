@@ -12,6 +12,7 @@ import connectMongoDatabase from './config/database.mongodb';
 import { verifyApiKey } from './middlewares/apiCheck.middleware';
 import compression from 'compression';
 import userRoutes from "./routes/user.routes"
+import authRoutes from "./routes/auth.routes"
 
 class App {
     private app: Application | null = null;
@@ -27,9 +28,9 @@ class App {
 
     private initializeMiddlewares(){
         this.app?.use(bodyParser.json())
+        this.app?.use(compression())
         this.app?.use(json({ limit: "10mb" }));
         this.app?.use(urlencoded({ extended: true, limit: "10mb" }));
-        this.app?.use(compression())
         //Configuration des cors
         this.app?.use(
             cors({
@@ -76,6 +77,8 @@ class App {
         });
         //Routes utilisateurs
         this.app?.use("/api/users", userRoutes);
+        //Routes authentification
+        this.app?.use("/api/auth", authRoutes);
         this.app?.use("/uploads",Express.static(path.join(__dirname, "public/uploads")));
         console.info("🛣  Routes initialisés");
     }
@@ -125,7 +128,7 @@ class App {
     */
     public async shutdown() {
         console.info("🛑 Arrêt du serveur...");
-        await disconnectDatabase();
+        await disconnectPrismaDatabase();
         this.server?.close(() => {
             console.info("✅ Serveur arrêté");
             process.exit(0);

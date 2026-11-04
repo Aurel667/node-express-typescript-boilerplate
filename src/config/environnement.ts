@@ -46,6 +46,11 @@ interface IConfig {
     log: {
       level: string,
     },
+    cookie: {
+      httpOnly: boolean,
+      secure: boolean,
+      sameSite: "strict" | "lax" | "none",
+    },
 }
 
 const getEnvVar = (name : String, defaultValue: String) => {
@@ -107,6 +112,16 @@ const config : IConfig = {
   log: {
     level: getEnvVar('LOG_LEVEL', 'info'),
   },
+
+  cookie: (() => {
+    const isProduction = getEnvVar('NODE_ENV', 'development') === 'production';
+    const isSameOrigin = `http${isProduction ? "s" : ""}://${getEnvVar('HOST', 'localhost')}` === getEnvVar('CORS_ORIGIN', 'http://localhost:5173');
+    return {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: (isSameOrigin ? "lax" : "none") as "lax" | "none",
+    };
+  })(),
 }
 
 export default config;

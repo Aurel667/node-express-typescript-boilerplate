@@ -7,8 +7,8 @@ interface AuthenticatedRequest extends Request {
 
 export async function auth(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-        const {user, error} = await getUserFromToken(req);
-        if (!user && error) {
+        const {user} = await getUserFromToken(req);
+        if (!user) {
             return res.status(401).json({ message: "Unauthorized" });
         }
         req.user = user;
@@ -21,7 +21,7 @@ export async function auth(req: AuthenticatedRequest, res: Response, next: NextF
 
 export async function admin(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
-        const {user, error} = await getUserFromToken(req);
+        const {user} = await getUserFromToken(req);
         if (!user) {
             return res.status(401).json({ message: "Unauthorized" });
         }

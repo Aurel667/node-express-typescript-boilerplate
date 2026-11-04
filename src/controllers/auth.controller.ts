@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
 import { signJWT } from "../utils";
 import { createError } from "../middlewares/errorHandlers";
-import config from "@/config/environnement";
+import config from "../config/environnement";
 
 import * as usersServicePrisma from "../services/users.service.prisma";
 import * as usersServiceMongo from "../services/users.service.mongodb";
@@ -29,11 +29,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
         }
         const token = signJWT({ id: user.id, email: user.email, role: user.role });
         const {password: _, ...userWithoutPassword} = user;
-        res.cookie("token", token, {
-            httpOnly: config.nodeEnv === "production",
-            secure: config.nodeEnv === "production",
-            sameSite: config.host === config.cors.origin ? "lax" : "strict",
-        });
+        res.cookie("token", token, config.cookie);
         return res.status(200).json({ token, user: userWithoutPassword });
     } catch (error) {
         next(error);
@@ -43,11 +39,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
 export async function logout(req: Request, res: Response, next: NextFunction) {
     try {
-        res.clearCookie("token", {
-            httpOnly: config.nodeEnv === "production",
-            secure: config.nodeEnv === "production",
-            sameSite: config.host === config.cors.origin ? "lax" : "strict",
-        });
+        res.clearCookie("token", config.cookie);
         return res.status(200).json({ message: "Déconnexion réussie" });
     } catch (error) {
         next(error);

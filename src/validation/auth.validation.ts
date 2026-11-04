@@ -1,5 +1,5 @@
 import zod from "zod";
-import { validate } from "../utils/validate.util.js";
+import { validate } from "../utils/validate.util";
 
 export const loginSchema = zod.object({
     email: zod.email(),

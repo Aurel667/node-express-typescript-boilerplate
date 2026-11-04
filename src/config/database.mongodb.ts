@@ -1,6 +1,7 @@
 import dotenv from 'dotenv'
 dotenv.config()
 import mongoose from 'mongoose'
+import config from './environnement'
 
 const connectDatabase = async () => {
     try {
@@ -9,7 +10,7 @@ const connectDatabase = async () => {
             serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
             socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
         };
-        await mongoose.connect(process.env.MONGODB_URI, options)
+        await mongoose.connect(config.database.uri, options)
         mongoose.connection.on('error', (error) => {
             console.error('❌ Database connection error:', error);
         });
