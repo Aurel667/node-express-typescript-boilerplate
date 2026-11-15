@@ -1,12 +1,12 @@
 {
-  "name": "node-express-typescript-boilerplate",
+  "name": "aurelstack",
   "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/Aurel667/node-express-typescript-boilerplate.git"
   },
   "author": "Aurel KOLANI <aureliuskolani@gmail.com>",
-  "description": "Ce boilerplate fournit une structure de base pour démarrer rapidement un projet Node.js avec Express et TypeScript, incluant des configurations pour le développement, la compilation et la gestion des dépendances.",
+  "description": "Starter personnel Node.js, Express, TypeScript et MySQL.",
   "badges": [
     {
       "url": "https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen",
@@ -32,6 +32,7 @@
     "dev": "concurrently \"nodemon src/index.ts\" \"npm run worker:dev\"",
     "worker:dev": "nodemon src/workers/index.worker.ts",
     "clean": "rimraf dist",
+    "create": "node .boilerplate/create-project.cjs",
     "type-check": "tsc --noEmit",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",

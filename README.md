@@ -1,4 +1,4 @@
-# Node.js Express TypeScript Boilerplate
+# AurelStack
 
 Base de projet pour créer une API REST avec Node.js, Express 5, TypeScript et MySQL. Le dépôt fournit des exemples d'authentification JWT, de validation Zod, d'accès aux données avec Prisma, de tâches asynchrones et de configuration.
 
@@ -20,6 +20,24 @@ Base de projet pour créer une API REST avec Node.js, Express 5, TypeScript et M
 - MySQL compatible avec l'adaptateur MariaDB utilisé par Prisma
 
 Ce starter utilise désormais MySQL uniquement. MongoDB n'est pas une option prise en charge.
+
+<!-- AURELSTACK_GENERATOR_DOC_START -->
+## Créer un nouveau projet
+
+Depuis le dépôt AurelStack, lancez le générateur avec un nom npm en minuscules :
+
+```bash
+npm run create -- mon-api
+```
+
+Par défaut, le projet est créé dans un dossier voisin du dépôt AurelStack. Pour choisir une destination :
+
+```bash
+npm run create -- mon-api ..\mes-projets\mon-api
+```
+
+Le générateur copie le code, adapte le nom du package, crée un `.env` avec des clés aléatoires et n'inclut ni `.git`, ni `node_modules`, ni `dist`, ni le générateur. Il refuse d'écraser une destination existante.
+<!-- AURELSTACK_GENERATOR_DOC_END -->
 
 ## Installation
 
