@@ -1,391 +1,168 @@
-# 🚀 Node.js Express TypeScript Boilerplate
+# Node.js Express TypeScript Boilerplate
 
-Un boilerplate moderne et prêt à l'emploi pour créer des APIs REST avec Node.js, Express et TypeScript. Ce projet propose une architecture modulaire avec support pour MongoDB (Mongoose) et PostgreSQL ou Mysql (Prisma).
+Base de projet pour créer une API REST avec Node.js, Express 5, TypeScript et MySQL. Le dépôt fournit des exemples d'authentification JWT, de validation Zod, d'accès aux données avec Prisma, de tâches asynchrones et de configuration.
 
-## ✨ Fonctionnalités
+## Fonctionnalités
 
-- 🔐 **Authentification JWT** avec cookies sécurisés
-- 🗄️ **Support multi-base de données** : MongoDB et PostgreSQL
-- 🛡️ **Sécurité** : Rate limiting, CORS, validation des données
-- 📧 **Envoi d'emails** avec Nodemailer
-- 🔄 **Middleware personnalisés** pour l'authentification et la gestion d'erreurs
-- 📝 **Validation des données** avec Zod
-- 🏗️ **Architecture modulaire** : controllers, services, routes, middlewares
-- 🔧 **Configuration flexible** via variables d'environnement
-- 📊 **Prisma Studio** pour la gestion de base de données
-- 🚀 **Hot reload** en développement avec Nodemon
+- Express 5 et TypeScript en mode strict
+- Authentification JWT et hachage des mots de passe avec bcrypt
+- Validation des entrées avec Zod
+- Accès à MySQL avec Prisma et l'adaptateur MariaDB
+- Rate limiting, CORS et vérification de clé API
+- Envoi d'emails avec Nodemailer
+- Files de tâches Bull avec Redis, workers et exemple de tâche cron
+- Gestion centralisée des erreurs et pages HTML d'erreur
 
-## 🛠️ Technologies utilisées
+## Prérequis
 
-### Backend
+- Node.js 18 ou supérieur et npm
+- Redis pour utiliser les queues Bull
+- MySQL compatible avec l'adaptateur MariaDB utilisé par Prisma
 
-- **Node.js** - Runtime JavaScript
-- **Express.js** - Framework web
-- **TypeScript** - Typage statique
-- **Prisma** - ORM pour PostgreSQL/MySQL
-- **Mongoose** - ODM pour MongoDB
+Ce starter utilise désormais MySQL uniquement. MongoDB n'est pas une option prise en charge.
 
-### Sécurité & Authentication
-
-- **JWT** - JSON Web Tokens
-- **bcrypt** - Hachage des mots de passe
-- **express-rate-limit** - Rate limiting
-- **CORS** - Cross-Origin Resource Sharing
-
-### Utilitaires
-
-- **Zod** - Validation et parsing des données
-- **Nodemailer** - Envoi d'emails
-- **dotenv** - Gestion des variables d'environnement
-
-## 📦 Installation
-
-### Prérequis
-
-- Node.js (version 18 ou supérieure)
-- npm ou yarn
-- Base de données : PostgreSQL ou MongoDB
-
-### Étapes d'installation
-
-1. **Cloner le repository**
+## Installation
 
 ```bash
-git clone node-express-typescript-boilerplate
+git clone https://github.com/Aurel667/node-express-typescript-boilerplate.git
 cd node-express-typescript-boilerplate
-```
-
-2. **Installer les dépendances**
-
-```bash
 npm install
 ```
 
-3. **Configuration des variables d'environnement**
-
-Créer un fichier `.env` à la racine du projet :
+Créez un fichier `.env` à la racine. Exemple pour un développement local avec MySQL :
 
 ```env
-# Configuration serveur
 NODE_ENV=development
 PORT=3001
 HOST=0.0.0.0
 
-# Clé API
-API_KEY=your-super-secret-api-key-change-in-production
+DATABASE_URI=mysql://user:password@localhost:3306/database_name
 
-# Base de données (choisir selon votre préférence)
-# PostgreSQL
-POSTGRESQL_URI=postgresql://username:password@localhost:5432/database_name
-
-# MongoDB
-MONGODB_URI=mongodb://localhost:27017/database_name
-
-# MySQL (optionnel)
-MYSQL_URI=mysql://username:password@localhost:3306/database_name
-
-# JWT
-JWT_SECRET=your-super-secret-jwt-key-change-in-production
+API_KEY=replace-with-a-local-api-key
+JWT_SECRET=replace-with-a-long-random-secret
 JWT_EXPIRES_IN=7d
 
-# CORS
 CORS_ORIGIN=http://localhost:5173
-
-# Email (optionnel)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-password
-
-# Rate Limiting
 RATE_LIMIT_WINDOW_MS=900000
 RATE_LIMIT_MAX_REQUESTS=100
 
-# Upload
+# Redis / Bull
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+# REDIS_URL est également lu par la configuration, mais la connexion Bull
+# utilise actuellement REDIS_HOST, REDIS_PORT et REDIS_PASSWORD.
+REDIS_URL=redis://127.0.0.1:6379
+
+# Email (facultatif)
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+
 MAX_FILE_SIZE=10485760
 UPLOAD_PATH=public/uploads
-
-# Logs
 LOG_LEVEL=info
-
-# Redis (optionnel)
-REDIS_URL=redis://localhost:6379
 ```
 
-4. **Configuration de la base de données**
+`API_KEY` est vérifiée par le middleware sur les requêtes de l'application. Envoyez-la dans l'en-tête `x-api-key`. En production, définissez des secrets propres à l'environnement et ne réutilisez pas les exemples ci-dessus.
 
-### Pour PostgreSQL avec Prisma :
+## Développement et commandes
 
 ```bash
-# Générer le client Prisma
+npm run dev          # Lance l'API et le worker avec rechargement automatique
+npm run worker:dev   # Lance uniquement le worker
+npm run dev:ts       # Lance l'API avec ts-node
+npm run type-check   # Vérifie les types TypeScript
+npm run build        # Compile dans dist/
+npm start            # Lance les entrées compilées de l'API et du worker
+npm run clean        # Supprime dist/
+```
+
+En production, compilez d'abord avec `npm run build`. `npm start` lance l'API et le worker via un séparateur shell `&`, dont le comportement varie selon la plateforme. Pour les exécuter comme deux processus indépendants, lancez `node dist/index.js` et `node dist/workers/index.worker.js` séparément. Le worker utilise Bull et Redis. Assurez-vous que MySQL et Redis sont démarrés avant de lancer l'application.
+
+### Prisma / MySQL
+
+```bash
 npm run prisma:generate
-
-# Créer et appliquer les migrations
 npm run prisma:migrate
-
-# (Optionnel) Ouvrir Prisma Studio
 npm run prisma:studio
+npm run prisma:deploy
+npm run prisma:reset
 ```
 
-### Pour MongoDB avec Mongoose :
+`prisma:reset` réinitialise la base et peut supprimer des données ; utilisez-le uniquement lorsque c'est voulu.
 
-Assurez-vous que MongoDB est démarré et accessible via l'URI configurée.
+## API
 
-## 🚀 Utilisation
+Les routes sont préfixées par `/api`. Le middleware de clé API est monté avant les routes : ajoutez donc `x-api-key` aux requêtes, y compris à la vérification de santé.
 
-### Démarrage en développement
+| Méthode | Chemin | Description |
+|---|---|---|
+| GET | `/api/health` | Vérification de santé |
+| POST | `/api/auth/login` | Connexion |
+| GET | `/api/auth/logout` | Déconnexion |
+| GET | `/api/auth/me` | Informations de l'utilisateur connecté |
+| GET | `/api/users` | Liste des utilisateurs |
+
+Exemple de connexion :
 
 ```bash
-npm run dev
-```
-
-### Démarrage avec ts-node
-
-```bash
-npm run dev:ts
-```
-
-### Build et démarrage en production
-
-```bash
-npm run build
-npm start
-```
-
-### Autres commandes utiles
-
-```bash
-# Nettoyage du dossier dist
-npm run clean
-
-# Vérification des types TypeScript
-npm run type-check
-
-# Commandes Prisma
-npm run prisma:generate    # Générer le client
-npm run prisma:migrate     # Créer une migration
-npm run prisma:studio      # Ouvrir Prisma Studio
-npm run prisma:reset       # Reset de la base de données
-npm run prisma:deploy      # Déployer les migrations
-```
-
-## 📁 Structure du projet
-
-```
-├── prisma/
-│   └── schema.prisma          # Schéma Prisma
-├── public/                    # Fichiers statiques
-├── src/
-│   ├── config/               # Configuration
-│   │   ├── database.mongodb.ts
-│   │   ├── database.prisma.ts
-│   │   ├── environnement.ts
-│   │   ├── mailer.ts
-│   │   └── prisma.ts
-│   ├── controllers/          # Contrôleurs
-│   │   ├── auth.controller.ts
-│   │   └── user.controller.ts
-│   ├── html/                 # Templates HTML d'erreur
-│   │   ├── 403.html
-│   │   ├── 404.html
-│   │   └── 500.html
-│   ├── middlewares/          # Middlewares
-│   │   ├── apiCheck.middleware.ts
-│   │   ├── auth.middleware.ts
-│   │   └── errorHandlers.ts
-│   ├── models/               # Modèles MongoDB
-│   │   └── user.model.ts
-│   ├── routes/               # Routes
-│   │   ├── auth.routes.ts
-│   │   └── user.routes.ts
-│   ├── services/             # Services métier
-│   │   ├── users.service.mongodb.ts
-│   │   └── users.service.prisma.ts
-│   ├── utils/                # Utilitaires
-│   │   ├── index.ts
-│   │   └── validate.util.ts
-│   ├── validation/           # Schémas de validation
-│   │   └── auth.validation.ts
-│   └── index.ts              # Point d'entrée
-├── package.json
-├── tsconfig.json
-├── nodemon.json
-└── README.md
-```
-
-## 🔐 Authentification
-
-Le système d'authentification utilise JWT avec les endpoints suivants :
-
-### Endpoints d'authentification
-
-```typescript
-POST /auth/login     # Connexion utilisateur
-GET  /auth/logout    # Déconnexion utilisateur  
-GET  /auth/me        # Informations utilisateur connecté (protégé)
-```
-
-### Exemple d'utilisation
-
-**Connexion :**
-
-```bash
-curl -X POST http://localhost:3001/auth/login \
+curl -X POST http://localhost:3001/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "password123"
-  }'
+  -H "x-api-key: replace-with-a-local-api-key" \
+  -d "{\"email\":\"user@example.com\",\"password\":\"password123\"}"
 ```
 
-**Accès aux ressources protégées :**
+La connexion dépose également le JWT dans un cookie nommé `token`. Les routes protégées utilisent ce jeton.
 
-```bash
-curl -X GET http://localhost:3001/auth/me \
-  -H "Authorization: Bearer <votre-token-jwt>"
+## Queues, workers et tâches cron
+
+- Les queues Bull sont définies dans `src/queues/`.
+- Les processeurs de tâches sont définis dans `src/jobs/`.
+- Le point d'entrée du worker est `src/workers/index.worker.ts`.
+- Les tâches planifiées avec `node-cron` sont définies dans `src/cron/`.
+
+Les exemples sont à adapter aux besoins de l'application. Le worker est lancé séparément de l'API en développement par le script `dev`.
+
+## Structure du projet
+
+```text
+prisma/                 Schéma et migrations Prisma
+public/                 Fichiers statiques
+src/
+  config/               Configuration, MySQL, Prisma, Redis et email
+  controllers/          Contrôleurs HTTP
+  cron/                 Exemples de tâches planifiées
+  generated/prisma/     Client Prisma généré
+  html/                 Pages d'erreur HTML
+  jobs/                 Processeurs Bull
+  middlewares/          Authentification, API key et erreurs
+  queues/               Définition des queues Bull
+  routes/               Routes Express
+  repositories/          Accès aux données MySQL
+  utils/                Fonctions utilitaires
+  validation/           Schémas de validation
+  workers/              Point d'entrée des workers
+  index.ts              Point d'entrée de l'API
 ```
 
-## 🗄️ Base de données
+## Ajouter une fonctionnalité
 
-Ce boilerplate supporte deux systèmes de base de données :
+1. Ajouter ou modifier le modèle dans `prisma/schema.prisma`.
+2. Créer ou mettre à jour le repository correspondant dans `src/repositories/`.
+3. Ajouter la validation dans `src/validation/`.
+4. Implémenter le contrôleur dans `src/controllers/`.
+5. Déclarer les routes dans `src/routes/` et les monter dans `src/index.ts`.
 
-### PostgreSQL avec Prisma
+## Sécurité et configuration de production
 
-- ORM moderne avec génération de types TypeScript
-- Migrations automatiques
-- Interface graphique avec Prisma Studio
+- Utilisez des valeurs secrètes uniques pour `API_KEY` et `JWT_SECRET`.
+- Configurez `CORS_ORIGIN` avec l'origine réelle de votre frontend.
+- Activez HTTPS en production pour les cookies sécurisés.
+- N'exposez pas Redis ou les bases de données publiquement sans contrôle d'accès.
+- La clé API est appliquée globalement dans l'exemple ; adaptez le middleware si certains endpoints doivent être publics.
 
-### MongoDB avec Mongoose
+## Licence
 
-- ODM flexible pour MongoDB
-- Schémas dynamiques
-- Support des requêtes MongoDB avancées
-
-**Note :** Les services sont organisés par type de base de données. Vous pouvez choisir d'utiliser l'un ou l'autre selon vos besoins.
-
-## 🛡️ Sécurité
-
-### Fonctionnalités de sécurité incluses :
-
-- **Rate Limiting** : Protection contre les attaques par déni de service
-- **CORS** : Configuration des origines autorisées
-- **Validation API Key** : Middleware de vérification de clé API
-- **Hachage des mots de passe** : Utilisation de bcrypt
-- **Cookies sécurisés** : Configuration HTTPOnly et Secure en production
-- **Validation des données** : Schémas Zod pour valider les entrées
-
-## 📧 Configuration Email
-
-Pour utiliser l'envoi d'emails, configurez les variables SMTP dans votre fichier `.env` :
-
-```env
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password
-```
-
-## 🔧 Personnalisation
-
-### Ajouter un nouveau module
-
-1. **Créer le modèle** (si MongoDB) dans `src/models/`
-2. **Mettre à jour le schéma Prisma** (si PostgreSQL) dans `prisma/schema.prisma`
-3. **Créer le service** dans `src/services/`
-4. **Créer le contrôleur** dans `src/controllers/`
-5. **Définir les routes** dans `src/routes/`
-6. **Ajouter la validation** dans `src/validation/`
-
-### Exemple d'ajout d'un module "Article"
-
-```typescript
-// src/models/article.model.ts (MongoDB)
-import { Schema, model } from 'mongoose';
-
-const articleSchema = new Schema({
-  title: { type: String, required: true },
-  content: { type: String, required: true },
-  author: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now }
-});
-
-export default model('Article', articleSchema);
-```
-
-```prisma
-// prisma/schema.prisma (PostgreSQL)
-model Article {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  author    String
-  createdAt DateTime @default(now())
-}
-```
-
-## 🐛 Gestion des erreurs
-
-Le système de gestion d'erreurs inclut :
-
-- **Middleware d'erreurs global**
-- **Pages d'erreur personnalisées** (403, 404, 500)
-- **Logging des erreurs**
-- **Réponses JSON standardisées**
-
-## 📊 Monitoring et Logs
-
-- **Logs structurés** avec différents niveaux (info, error, warn)
-- **Monitoring des performances** avec compression
-- **Métriques de rate limiting**
-
-## 🚀 Déploiement
-
-### Variables d'environnement production
-
-Assurez-vous de configurer les variables suivantes pour la production :
-
-```env
-NODE_ENV=production
-JWT_SECRET=<clé-très-sécurisée>
-API_KEY=<clé-api-sécurisée>
-DATABASE_URL=<url-base-données-production>
-CORS_ORIGIN=<url-frontend-production>
-```
-
-### Docker (optionnel)
-
-Vous pouvez ajouter un `Dockerfile` pour containeriser l'application :
-
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY dist ./dist
-EXPOSE 3001
-CMD ["npm", "start"]
-```
-
-## 🤝 Contribution
-
-1. Fork le projet
-2. Créer une branche feature (`git checkout -b feature/nouvelle-fonctionnalite`)
-3. Commit les changements (`git commit -m 'Ajout nouvelle fonctionnalité'`)
-4. Push vers la branche (`git push origin feature/nouvelle-fonctionnalite`)
-5. Créer une Pull Request
-
-## 📝 Licence
-
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
-
-## 🆘 Support
-
-Pour toute question ou problème :
-
-1. Vérifiez la [documentation](#)
-2. Consultez les [issues ouvertes](https://github.com/votre-repo/issues)
-3. Créez une [nouvelle issue](https://github.com/votre-repo/issues/new)
-
----
-
-**Happy coding! 🎉**
+Le dépôt indique une licence MIT. Consultez le fichier de licence du projet pour ses conditions.

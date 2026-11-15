@@ -7,8 +7,7 @@ import bodyParser from 'body-parser';
 import config from './config/environnement'
 import rateLimit from 'express-rate-limit';
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandlers"
-import { connectPrismaDatabase, disconnectPrismaDatabase } from './config/database.prisma';
-import connectMongoDatabase from './config/database.mongodb';
+import { connectPrismaDatabase, disconnectPrismaDatabase } from './config/database';
 import { verifyApiKey } from './middlewares/apiCheck.middleware';
 import compression from 'compression';
 import userRoutes from "./routes/user.routes"
@@ -91,11 +90,8 @@ class App {
 
     public async start(){
         try {
-            // Connexion à la base de données
-            await connectMongoDatabase(); //Si vous utilisez MongoDB
-            
-            await connectPrismaDatabase(); //Si vous utilisez Prisma
-
+            // Connexion à la base de données            
+            await connectPrismaDatabase();
 
             // Lancement du serveur
             this.server?.listen(config.port, config.host as string, () => {

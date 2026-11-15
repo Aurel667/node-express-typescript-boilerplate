@@ -27,8 +27,9 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "nodemon src/index.ts",
+    "start": "node dist/index.js & node dist/workers/index.worker.js",
+    "dev": "concurrently \"nodemon src/index.ts\" \"npm run worker:dev\"",
+    "worker:dev": "nodemon src/workers/index.worker.ts",
     "dev:ts": "ts-node src/index.ts",
     "clean": "rimraf dist",
     "type-check": "tsc --noEmit",
@@ -39,10 +40,12 @@
     "prisma:deploy": "prisma migrate deploy"
   },
   "dependencies": {
-    "@prisma/client": "^7.10.1",
+    "@bull-board/express": "^9.12.0",
     "@prisma/adapter-mariadb": "^7.10.1",
+    "@prisma/client": "^7.10.1",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
+    "bull": "^4.16.5",
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -50,20 +53,22 @@
     "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.19.1",
+    "node-cron": "^4.6.0",
     "nodemailer": "^7.0.9",
     "prisma": "^7.10.1",
     "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
+    "@types/bull": "^3.15.9",
     "@types/compression": "^1.8.1",
     "@types/cookie-parser": "^1.4.9",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^24.7.2",
+    "@types/node": "^24.19.2",
     "@types/nodemailer": "^7.0.2",
+    "concurrently": "^10.0.7",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }

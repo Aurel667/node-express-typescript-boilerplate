@@ -23,18 +23,14 @@ interface DecodedToken extends jwt.JwtPayload {
 }
 
 export const getUserFromToken = async (req: Request) => {
-    try {
-        const isMobile = isUserOnMobile(req)
-        const token = isMobile ? req.headers['authorization']?.split(' ')[1] : req.cookies.token
-        if(!token) throw createError.badRequest("Le token n'existe pas.")
-        const decoded = jwt.verify(token, config.jwt.secret);
-        if (typeof decoded === "string" || !decoded) {
-            throw createError.badRequest("Le token est invalide.");
-        }
-        const user = await prisma.user.findUnique({where: {id: (decoded as DecodedToken).id}})
-        if(!user) throw createError.notFound("L'utilisateur n'existe pas.")
-        return {user};
-    } catch (error) {
-        throw error
+    const isMobile = isUserOnMobile(req)
+    const token = isMobile ? req.headers['authorization']?.split(' ')[1] : req.cookies.token
+    if(!token) throw createError.unauthorized("Le token n'existe pas.")
+    const decoded = jwt.verify(token, config.jwt.secret);
+    if (typeof decoded === "string" || !decoded) {
+        throw createError.unauthorized("Le token est invalide.");
     }
+    const user = await prisma.user.findUnique({where: {id: (decoded as DecodedToken).id}})
+    if(!user) throw createError.unauthorized("L'utilisateur n'existe pas.")
+    return {user};
 }

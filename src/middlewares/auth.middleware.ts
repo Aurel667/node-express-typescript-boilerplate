@@ -1,36 +1,32 @@
 import { Request, Response, NextFunction } from "express";
 import { getUserFromToken } from "../utils";
+import { User } from "../generated/prisma/client";
+import { createError } from "./errorHandlers";
 
 interface AuthenticatedRequest extends Request {
-    user?: any;
+    user?: User;
 }
 
 export async function auth(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
         const {user} = await getUserFromToken(req);
-        if (!user) {
-            return res.status(401).json({ message: "Unauthorized" });
-        }
         req.user = user;
         next();
-        return;
     } catch (error) {
-        return res.status(401).json({ message: "Unauthorized" });
+        next(error);
     }
 }
 
 export async function admin(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
         const {user} = await getUserFromToken(req);
-        if (!user) {
-            return res.status(401).json({ message: "Unauthorized" });
-        }
         req.user = user;
-        if (req.user && req.user.role === "admin") {
-            next();
+        if (user.role !== "admin") {
+            next(createError.forbidden("Accès réservé aux administrateurs"));
+            return;
         }
-        return;
+        next();
     } catch (error) {
-        return res.status(401).json({ message: "Unauthorized" });
+        next(error);
     }
 }

@@ -6,15 +6,16 @@ interface IConfig {
     nodeEnv: string,
     port: number,
     host: number | string,
-
-    apiKey: string,
     
     database: {
       uri: string,
     },
     
     redis: {
-      url: string | undefined,
+      url: string,
+      host: string,
+      port: number,
+      password: string
     },
     
     jwt: {
@@ -69,18 +70,15 @@ const config : IConfig = {
   port: parseInt(getEnvVar('PORT', '3001') as string, 10),
   host: getEnvVar('HOST', '0.0.0.0'),
 
-  apiKey: getEnvVar('API_KEY', 'default-api-key-change-in-production'),
-
-  /** Configuration de la base de données
-   * Adapter le nom
-   * 
-   */
   database: {
     uri: getEnvVar('DATABASE_URI', 'mysql://root:@localhost:3306/yourdbname'),
   },
   
   redis: {
-    url: process.env.REDIS_URL,
+    url: getEnvVar("REDIS_URL", "redis://127.0.0.1:6379"),
+    host: getEnvVar("REDIS_HOST", "localhost"),
+    port: Number(getEnvVar("REDIS_PORT", "6379")),
+    password: getEnvVar("REDIS_PASSWORD", ""),
   },
   
   jwt: {

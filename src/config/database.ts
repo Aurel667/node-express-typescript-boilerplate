@@ -1,12 +1,9 @@
 import prisma from "./prisma"
 
 export async function connectPrismaDatabase(){
-    try {
-        await prisma.$connect()
-        console.info("✅ Base de données connectée");
-    } catch (error) {
-        console.error("Error connecting to the database:", error)
-    }
+    await prisma.$connect()
+    .then(() => console.info("✅ Base de données connectée"))
+    
 }
 
 export async function disconnectPrismaDatabase(){
