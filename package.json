@@ -27,10 +27,10 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/index.js & node dist/workers/index.worker.js",
+    "start": "concurrently \"node dist/index.js\" \"npm run worker:start\"",
+    "worker:start": "node dist/workers/index.worker.js",
     "dev": "concurrently \"nodemon src/index.ts\" \"npm run worker:dev\"",
     "worker:dev": "nodemon src/workers/index.worker.ts",
-    "dev:ts": "ts-node src/index.ts",
     "clean": "rimraf dist",
     "type-check": "tsc --noEmit",
     "prisma:generate": "prisma generate",

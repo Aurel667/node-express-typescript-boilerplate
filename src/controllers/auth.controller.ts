@@ -10,7 +10,6 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     try {
         const {email, password} = req.body;
 
-        /** Utiliser cette méthode si vous utilisez prisma */
         const user = await userRepo.getUserByEmail(email);
 
         if (!user) {
@@ -21,7 +20,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
             throw createError.unauthorized("Email ou mot de passe invalide");
         }
         const token = signJWT({ id: user?.id, email: user?.email, role: user?.role });
-        const {password: _, ...userWithoutPassword} = user;
+        const { password: _, ...userWithoutPassword } = user;
         res.cookie("token", token, config.cookie);
         res.status(200).json({ token, user: userWithoutPassword });
     } catch (error) {
@@ -42,11 +41,11 @@ export async function getMe(req: Request, res: Response, next: NextFunction) {
         const userId = (req as any).user.id;
         /** Utiliser cette méthode si vous utilisez prisma */
         const user = await userRepo.getUserById(userId);
-
         if (!user) {
             throw createError.notFound("Utilisateur non trouvé");
         }
-        res.status(200).json({ user });
+        const { password: _, ...userWithoutPassword } = user; 
+        res.status(200).json({ user: userWithoutPassword });
     } catch (error) {
         next(error);
     }

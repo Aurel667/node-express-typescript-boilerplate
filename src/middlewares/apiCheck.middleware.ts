@@ -2,19 +2,22 @@ import dotenv from 'dotenv';
 dotenv.config();
 import path from "path";
 import { Request, Response, NextFunction } from 'express';
+import { createError } from './errorHandlers';
 
 export function verifyApiKey(req: Request, res: Response, next: NextFunction) {
     const apiKey = req.headers['x-api-key'];
-    if (apiKey === process.env.API_KEY) {
+    const APP_API_KEY = process.env.API_KEY
+    if(!APP_API_KEY){
+        next(createError.internal("APP API NOT SET"))
+        return;
+    }
+    if (apiKey === APP_API_KEY) {
         next();
     } else {
         if (req.headers.accept && req.headers.accept.includes('text/html')) {
             return res.status(404).sendFile(path.join(__dirname, '../html/403.html'));
         }
-        res.status(403).json({
-            message: "Forbidden",
-            error: "Invalid or missing API key",
-        });
+        next(createError.forbidden("Invalid or missing api key"))
     }
 }
 
@@ -24,10 +27,6 @@ export function verifyOrigin(req: Request, res: Response, next: NextFunction) {
     if (allowedOrigins.includes(origin as string)) {
         next();
     } else {
-        res.status(403).json({
-            message: "Forbidden",
-            error: "Origin not allowed",
-            receivedOrigin: origin,
-        });
+        next(createError.forbidden("Origin not allowed"))
     }
 }

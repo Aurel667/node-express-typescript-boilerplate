@@ -72,14 +72,14 @@ LOG_LEVEL=info
 ```bash
 npm run dev          # Lance l'API et le worker avec rechargement automatique
 npm run worker:dev   # Lance uniquement le worker
-npm run dev:ts       # Lance l'API avec ts-node
 npm run type-check   # Vérifie les types TypeScript
 npm run build        # Compile dans dist/
 npm start            # Lance les entrées compilées de l'API et du worker
+npm run worker:start # Lance uniquement le worker compilé
 npm run clean        # Supprime dist/
 ```
 
-En production, compilez d'abord avec `npm run build`. `npm start` lance l'API et le worker via un séparateur shell `&`, dont le comportement varie selon la plateforme. Pour les exécuter comme deux processus indépendants, lancez `node dist/index.js` et `node dist/workers/index.worker.js` séparément. Le worker utilise Bull et Redis. Assurez-vous que MySQL et Redis sont démarrés avant de lancer l'application.
+En production, compilez d'abord avec `npm run build`, puis lancez `npm start`. Le script utilise `concurrently` pour démarrer l'API (`dist/index.js`) et le worker compilé (`dist/workers/index.worker.js`) dans des processus séparés, de manière compatible avec les différents shells. Le worker utilise Bull et Redis. Assurez-vous que MySQL et Redis sont démarrés avant de lancer l'application.
 
 ### Prisma / MySQL
 
